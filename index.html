@@ -163,6 +163,7 @@
 141: { filename: "suhana_mahajan", name: "Suhana Mahajan" },
 142: { filename: "richa.bend@gmail.com", name: "Richa Bend" },
 };
+
     function showImage() {
       const id = document.getElementById("studentId").value.trim();
       const container = document.getElementById("imageContainer");
@@ -174,18 +175,15 @@
         return;
       }
 
-      const baseUrl = `https://qrlogger.github.io/student-id-cards`;
-      const imgUrl = `${baseUrl}/${entry.filename}.png`;
-      const pdfUrl = `${baseUrl}/${entry.filename}.pdf`;
+      const imgUrl = `https://qrlogger.github.io/student-cards/${entry.filename}.png`;
+      const pdfUrl = `https://qrlogger.github.io/student-id-cards/${entry.filename}.pdf`;
 
-      // Show name and QR image only
       container.innerHTML = `
         <h3>${entry.name}</h3>
         <img src="${imgUrl}" alt="QR Code for ${entry.name}">
         <a id="pdfDownload" href="${pdfUrl}" download style="display: none;"></a>
       `;
 
-      // Trigger automatic PDF download
       setTimeout(() => {
         document.getElementById("pdfDownload").click();
       }, 500);
