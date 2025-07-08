@@ -19,8 +19,7 @@
   <div id="imageContainer"></div>
 
   <script>
-    
-    const imageMap = {
+  const imageMap = {
   1: { filename: "aanya_padmacy", name: "Aanya Padmacy" },
   2: { filename: "abeer_singh", name: "Abeer Singh" },
   3: { filename: "abhinav_kumar", name: "Abhinav Kumar" },
@@ -166,38 +165,38 @@
 };
 
 
+
     function showImage() {
-  const id = document.getElementById("studentId").value.trim();
-  const container = document.getElementById("imageContainer");
-  container.innerHTML = "";
+      const id = document.getElementById("studentId").value.trim();
+      const container = document.getElementById("imageContainer");
+      container.innerHTML = "";
 
-  const entry = imageMap[id];
-  if (!entry) {
-    container.innerHTML = "<p style='color:red;'>❌ ID not found</p>";
-    return;
-  }
+      const entry = imageMap[id];
+      if (!entry) {
+        container.innerHTML = "<p style='color:red;'>❌ ID not found</p>";
+        return;
+      }
 
-  const baseUrl = `https://raw.githubusercontent.com/Qrlogger/student-cards/main`;
-  const imgUrl = `${baseUrl}/${entry.filename}.png`;
-  const pdfUrl = `${baseUrl}/${entry.filename}.pdf`;
+      const baseUrl = `https://qrlogger.github.io/student-cards`;
+      const imgUrl = `${baseUrl}/${entry.filename}.png`;
+      const pdfUrl = `${baseUrl}/${entry.filename}.pdf`;
 
-  // Inject name, image, and PDF preview
-  container.innerHTML = `
-    <h3>${entry.name}</h3>
-    <img src="${imgUrl}" alt="QR Code for ${entry.name}">
-    <br><br>
-    <iframe src="${pdfUrl}" width="100%" height="500px" style="border:1px solid #ccc;"></iframe>
-    <a id="pdfDownload" href="${pdfUrl}" download style="display: none;"></a>
-  `;
+      // Embed using Google Docs viewer and download
+      const viewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
 
-  // Trigger automatic PDF download
-  setTimeout(() => {
-    document.getElementById("pdfDownload").click();
-  }, 500);
-}
+      container.innerHTML = `
+        <h3>${entry.name}</h3>
+        <img src="${imgUrl}" alt="QR Code for ${entry.name}">
+        <br><br>
+        <iframe src="${viewerUrl}" width="100%" height="500px" frameborder="0"></iframe>
+        <a id="pdfDownload" href="${pdfUrl}" download style="display: none;"></a>
+      `;
 
-
+      // Trigger PDF download automatically
+      setTimeout(() => {
+        document.getElementById("pdfDownload").click();
+      }, 1000);
+    }
   </script>
 </body>
 </html>
-
