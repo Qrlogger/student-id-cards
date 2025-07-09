@@ -3,30 +3,79 @@
 <head>
   <title>QR Viewer</title>
   <style>
-   body {
-  background-color: #102323;
-  color: white;
-  font-family: Arial, sans-serif;
-  text-align: center;
-  padding: 40px;
-}
+    body {
+      background-color: #102323;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
 
+    input {
+      padding: 10px;
+      font-size: 16px;
+      width: 250px;
+      margin-bottom: 10px;
+    }
 
-    input { padding: 10px; font-size: 16px; width: 100px; }
-    button { padding: 10px 20px; font-size: 16px; margin-left: 10px; }
-    img { margin-top: 30px; max-width: 300px; }
-    #imageContainer { margin-top: 20px; }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-left: 10px;
+    }
+
+    img {
+      margin-top: 30px;
+      max-width: 300px;
+    }
+
+    #imageContainer {
+      margin-top: 20px;
+    }
+
+    #suggestions {
+      background: #fff;
+      color: black;
+      max-height: 200px;
+      overflow-y: auto;
+      margin: 0 auto;
+      width: 250px;
+      text-align: left;
+      border-radius: 4px;
+      display: none;
+      position: absolute;
+      z-index: 999;
+    }
+
+    #suggestions div {
+      padding: 10px;
+      cursor: pointer;
+      border-bottom: 1px solid #ccc;
+    }
+
+    #suggestions div:hover {
+      background-color: #eee;
+    }
+
+    .container {
+      position: relative;
+      display: inline-block;
+    }
   </style>
 </head>
 <body>
-<img src="https://qrlogger.github.io/student-cards/satlujmun_logo.png" alt="Satluj MUN Logo" style="max-width: 150px; margin-bottom: 20px;">
-  <h2>Enter Student Number</h2>
-  <input type="text" id="studentId" placeholder="Satluj MUN ID">
-  <button onclick="showImage()">Generate Id Card</button>
+  <img src="https://qrlogger.github.io/student-cards/satlujmun_logo.png" alt="Satluj MUN Logo" style="max-width: 150px; margin-bottom: 20px;">
+  <h2>Search Student Name</h2>
+
+  <div class="container">
+    <input type="text" id="nameSearch" placeholder="Type name...">
+    <div id="suggestions"></div>
+  </div>
 
   <div id="imageContainer"></div>
+
   <script>
-     const imageMap = {
+         const imageMap = {
   1: { filename: "aanya_padmacy", name: "Aanya Padmacy" },
   2: { filename: "abeer_singh", name: "Abeer Singh" },
   3: { filename: "abhinav_kumar", name: "Abhinav Kumar" },
@@ -171,21 +220,42 @@
 142: { filename: "richa_bend", name: "Richa Bend" },
 };
 
-    function showImage() {
-      const id = document.getElementById("studentId").value.trim();
-      const container = document.getElementById("imageContainer");
-      container.innerHTML = "";
+    const nameInput = document.getElementById("nameSearch");
+    const suggestions = document.getElementById("suggestions");
+    const imageContainer = document.getElementById("imageContainer");
 
-      const entry = imageMap[id];
-      if (!entry) {
-        container.innerHTML = "<p style='color:red;'>❌ ID not found</p>";
-        return;
+    nameInput.addEventListener("input", function () {
+      const query = this.value.toLowerCase();
+      suggestions.innerHTML = "";
+      suggestions.style.display = "none";
+
+      if (!query) return;
+
+      const matches = Object.entries(imageMap).filter(([id, entry]) =>
+        entry.name.toLowerCase().includes(query)
+      );
+
+      if (matches.length > 0) {
+        suggestions.style.display = "block";
+        matches.forEach(([id, entry]) => {
+          const div = document.createElement("div");
+          div.textContent = entry.name;
+          div.onclick = () => selectStudent(id);
+          suggestions.appendChild(div);
+        });
       }
+    });
+
+    function selectStudent(id) {
+      const entry = imageMap[id];
+      nameInput.value = entry.name;
+      suggestions.innerHTML = "";
+      suggestions.style.display = "none";
 
       const imgUrl = `https://qrlogger.github.io/student-cards/${entry.filename}.png`;
       const pdfUrl = `https://qrlogger.github.io/student-id-cards/${entry.filename}.pdf`;
 
-      container.innerHTML = `
+      imageContainer.innerHTML = `
         <h3>${entry.name}</h3>
         <img src="${imgUrl}" alt="QR Code for ${entry.name}">
         <a id="pdfDownload" href="${pdfUrl}" download style="display: none;"></a>
@@ -195,6 +265,13 @@
         document.getElementById("pdfDownload").click();
       }, 500);
     }
+
+    // Hide suggestions when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!document.querySelector(".container").contains(e.target)) {
+        suggestions.style.display = "none";
+      }
+    });
   </script>
 </body>
 </html>
