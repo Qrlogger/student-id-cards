@@ -73,6 +73,8 @@
   </div>
 
   <div id="imageContainer"></div>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<canvas id="qrCanvas" style="display:none;"></canvas>
 
   <script>
          const imageMap = {
@@ -247,24 +249,58 @@
     });
 
     function selectStudent(id) {
-      const entry = imageMap[id];
-      nameInput.value = entry.name;
-      suggestions.innerHTML = "";
-      suggestions.style.display = "none";
+  const entry = imageMap[id];
+  nameInput.value = entry.name;
+  suggestions.innerHTML = "";
+  suggestions.style.display = "none";
 
-      const imgUrl = `https://qrlogger.github.io/student-cards/${entry.filename}.png`;
-      const pdfUrl = `https://qrlogger.github.io/student-id-cards/${entry.filename}.pdf`;
+  const imgUrl = `https://qrlogger.github.io/student-cards/${entry.filename}.png`;
+  const pdfUrl = `https://qrlogger.github.io/student-id-cards/${entry.filename}.pdf`;
 
-      imageContainer.innerHTML = `
-        <h3>${entry.name}</h3>
-        <img src="${imgUrl}" alt="QR Code for ${entry.name}">
-        <a id="pdfDownload" href="${pdfUrl}" download style="display: none;"></a>
-      `;
+  const img = new Image();
+  img.crossOrigin = "Anonymous"; // important for canvas access
+  img.src = imgUrl;
 
-      setTimeout(() => {
-        document.getElementById("pdfDownload").click();
-      }, 500);
+  img.onload = function () {
+    const canvas = document.getElementById("qrCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = img.width;
+    canvas.height = img.height;
+
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    const qrCode = jsQR(imageData.data, canvas.width, canvas.height);
+    let qrText = qrCode ? qrCode.data : "⚠️ Unable to decode QR.";
+
+    if (qrCode) {
+      // Format QR text nicely
+      const formatted = qrText
+        .split(/\r?\n/)
+        .map(line => `<p>${line}</p>`)
+        .join("");
+      qrText = `<div style="color:lightgreen; text-align:left; max-width:300px; margin: 10px auto;">${formatted}</div>`;
+    } else {
+      qrText = `<p style="color:orange;">⚠️ QR Code could not be read.</p>`;
     }
+
+    imageContainer.innerHTML = `
+      <h3>${entry.name}</h3>
+      ${qrText}
+      <img src="${imgUrl}" alt="QR Code for ${entry.name}">
+      <a id="pdfDownload" href="${pdfUrl}" download style="display: none;"></a>
+    `;
+
+    setTimeout(() => {
+      document.getElementById("pdfDownload").click();
+    }, 500);
+  };
+
+  img.onerror = () => {
+    imageContainer.innerHTML = `<p style="color:red;">❌ Failed to load QR image.</p>`;
+  };
+}
+
 
     // Hide suggestions when clicking outside
     document.addEventListener("click", (e) => {
