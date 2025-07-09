@@ -277,25 +277,30 @@
     const qrCode = jsQR(imageData.data, canvas.width, canvas.height);
     let qrText = qrCode ? qrCode.data : "⚠️ Unable to decode QR.";
 
-    if (qrCode) {
-      // Format QR text nicely
-      let formatted = "";
-try {
-  const json = JSON.parse(qrCode.data);
-  formatted = Object.entries(json)
-    .map(([key, value]) => `<p><strong>${capitalize(key)}:</strong> ${value}</p>`)
-    .join("");
-} catch (e) {
-  formatted = qrCode.data
-    .split(/\r?\n/)
-    .map(line => `<p>${line}</p>`)
-    .join("");
-}
+    let formatted = "";
 
+    if (qrCode) {
+      try {
+        const data = JSON.parse(qrCode.data);
+
+        formatted = `
+          <div style="background:#001a1a; padding:15px; border-radius:10px; max-width:300px; margin:0 auto; text-align:left;">
+            <p><strong>Name:</strong> ${data.name}</p>
+            <p><strong>Committee:</strong> ${data.committee}</p>
+            <p><strong>Class:</strong> ${data.class}</p>
+            <p><strong>School:</strong> ${data.school}</p>
+          </div>
+        `;
+      } catch (e) {
+        formatted = `<p style="color: red;">⚠️ Invalid QR code content</p>`;
+      }
+    } else {
+      formatted = `<p style="color: red;">⚠️ Could not detect QR code</p>`;
+    }
 
     imageContainer.innerHTML = `
       <h3>${entry.name}</h3>
-      ${qrText}
+      ${formatted}
       <img src="${imgUrl}" alt="QR Code for ${entry.name}">
       <a id="pdfDownload" href="${pdfUrl}" download style="display: none;"></a>
     `;
