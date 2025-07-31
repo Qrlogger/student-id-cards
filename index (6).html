@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>QR Viewer</title>
+  <style>
+    body {
+      background-color: #102323;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+
+    input {
+      padding: 10px;
+      font-size: 16px;
+      width: 250px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-left: 10px;
+    }
+
+    img {
+      margin-top: 30px;
+      max-width: 300px;
+    }
+
+    #imageContainer {
+      margin-top: 20px;
+    }
+
+    #suggestions {
+      background: #fff;
+      color: black;
+      max-height: 200px;
+      overflow-y: auto;
+      margin: 0 auto;
+      width: 250px;
+      text-align: left;
+      border-radius: 4px;
+      display: none;
+      position: absolute;
+      z-index: 999;
+    }
+
+    #suggestions div {
+      padding: 10px;
+      cursor: pointer;
+      border-bottom: 1px solid #ccc;
+    }
+
+    #suggestions div:hover {
+      background-color: #eee;
+    }
+
+    .container {
+      position: relative;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <img src="https://qrlogger.github.io/student-id-cards/satlujmun_logo.png" alt="Satluj MUN Logo" style="max-width: 150px; margin-bottom: 20px;">
+  <h2>Search Student Name</h2>
+
+  <div class="container">
+    <input type="text" id="nameSearch" placeholder="Type name...">
+    <div id="suggestions"></div>
+  </div>
+
+  <div id="imageContainer"></div>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<canvas id="qrCanvas" style="display:none;"></canvas>
+
+  <script>
+    function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+         const imageMap = {
+  1: {'filename': 'vedansh_pant', 'name': 'Vedansh Pant'},
+  2: {'filename': 'shreya_verma', 'name': 'Shreya Verma'},
+  3: {'filename': 'bharti_singh', 'name': 'Bharti Singh'},
+  4: {'filename': 'rahul_saini', 'name': 'Rahul Saini'},
+  5: {'filename': 'nirbhay_rana', 'name': 'Nirbhay Rana'},
+  6: {'filename': 'viraj_singh', 'name': 'Viraj Singh'},
+  7: {'filename': 'vrinda_garg', 'name': 'Vrinda Garg'},
+  8: {'filename': 'manasvi_singh', 'name': 'Manasvi Singh'},
+  9: {'filename': 'abhinav_gupta', 'name': 'Abhinav Gupta'},
+  10: {'filename': 'prateek_rana', 'name': 'Prateek Rana'},
+  11: {'filename': 'aabhya_garg', 'name': 'Aabhya Garg'},
+  12: {'filename': 'himanshi', 'name': 'Himanshi'},
+  13: {'filename': 'vikas', 'name': 'Vikas'},
+  14: {'filename': 'aarush_sharma', 'name': 'Aarush Sharma'},
+  15: {'filename': 'ravi_kanojiya', 'name': 'Ravi Kanojiya'},
+  16: {'filename': 'shivesh_singh', 'name': 'Shivesh Singh'},
+  17: {'filename': 'ranjit', 'name': 'Ranjit'},
+  18: {'filename': 'jeetenbedi', 'name': 'Jeetenbedi'},
+  19: {'filename': 'jayesh_raj_kumar', 'name': 'Jayesh Raj Kumar'},
+  20: {'filename': 'divnoor_kaur', 'name': 'Divnoor Kaur'},
+  21: {'filename': 'pranusha_chauhan', 'name': 'Pranusha Chauhan'},
+  22: {'filename': 'shyna', 'name': 'Shyna'},
+  23: {'filename': 'kavya_sharma', 'name': 'Kavya Sharma'},
+  24: {'filename': 'ansh_singh', 'name': 'Ansh Singh'},
+  25: {'filename': 'anshi_gulia', 'name': 'Anshi Gulia'},
+  26: {'filename': 'ansh_verma', 'name': 'Ansh Verma'},
+  27: {'filename': 'vandita_aggarwal', 'name': 'Vandita Aggarwal'},
+  28: {'filename': 'alia_chaufla', 'name': 'Alia Chaufla'},
+  29: {'filename': 'dhruv_srivastava', 'name': 'Dhruv Srivastava'},
+  30: {'filename': 'akshay', 'name': 'Akshay'},
+  31: {'filename': 'ishan_sood', 'name': 'Ishan Sood'},
+  32: {'filename': 'nitika', 'name': 'Nitika'},
+  33: {'filename': 'smriti_sharma', 'name': 'Smriti Sharma'},
+  34: {'filename': 'rahul_sharma', 'name': 'Rahul Sharma'},
+  35: {'filename': 'arshiya', 'name': 'Arshiya'},
+  36: {'filename': 'ansh_verma_2', 'name': 'Ansh Verma'},
+  37: {'filename': 'simran_nimbal', 'name': 'Simran Nimbal'},
+  38: {'filename': 'gunbir_raj', 'name': 'Gunbir Raj'},
+  39: {'filename': 'pranav_sharma', 'name': 'Pranav Sharma'},
+  40: {'filename': 'rudransh', 'name': 'Rudransh'},
+  41: {'filename': 'abhinav_nagpal', 'name': 'Abhinav Nagpal'},
+  42: {'filename': 'rishi_singh', 'name': 'Rishi Singh'},
+  43: {'filename': 'aman_longia', 'name': 'Aman Longia'},
+  44: {'filename': 'dilshaan', 'name': 'Dilshaan'},
+  45: {'filename': 'shivam', 'name': 'Shivam'},
+  46: {'filename': 'shaiana_rana', 'name': 'Shaiana Rana'},
+  47: {'filename': 'raj', 'name': 'Raj'},
+  48: {'filename': 'shreya_garg', 'name': 'Shreya Garg'},
+  49: {'filename': 'archana', 'name': 'Archana'},
+  50: {'filename': 'charvey_mahajan', 'name': 'Charvey Mahajan'},
+  51: {'filename': 'kavya_garg', 'name': 'Kavya Garg'},
+  52: {'filename': 'ansh_mishra', 'name': 'Ansh Mishra'},
+  53: {'filename': 'lakshiv_bhatnagar', 'name': 'Lakshiv Bhatnagar'},
+  54: {'filename': 'arnav_jindal', 'name': 'Arnav Jindal'},
+  55: {'filename': 'divika_bhola', 'name': 'Divika Bhola'},
+  56: {'filename': 'pearl_palakshi', 'name': 'Pearl Palakshi'},
+  57: {'filename': 'jashan', 'name': 'Jashan'},
+  58: {'filename': 'akshit', 'name': 'Akshit'},
+  59: {'filename': 'garima_yadav', 'name': 'Garima Yadav'},
+  60: {'filename': 'varinda_gupta', 'name': 'Varinda Gupta'},
+  61: {'filename': 'suhana_mahajan', 'name': 'Suhana Mahajan'},
+  62: {'filename': 'avni_manikandan', 'name': 'Avni Manikandan'},
+  63: {'filename': 'dhruv_srivastava_2', 'name': 'Dhruv Srivastava'},
+  64: {'filename': 'hussanpreet_kaur', 'name': 'Hussanpreet Kaur'},
+  65: {'filename': 'iva_gupta', 'name': 'Iva Gupta'},
+  66: {'filename': 'aryan_khillan', 'name': 'Aryan Khillan'},
+  67: {'filename': 'prashansa', 'name': 'Prashansa'},
+  68: {'filename': 'kayan', 'name': 'Kayan'},
+  69: {'filename': 'anvi_sharma', 'name': 'Anvi Sharma'},
+  70: {'filename': 'tanay_chauhan', 'name': 'Tanay Chauhan'},
+  71: {'filename': 'anya_thapa', 'name': 'Anya Thapa'},
+  72: {'filename': 'kavish_kanyal', 'name': 'Kavish Kanyal'},
+  73: {'filename': 'vanshika_yadav', 'name': 'Vanshika Yadav'},
+  74: {'filename': 'jugraj_singh', 'name': 'Jugraj Singh'},
+  75: {'filename': 'daksh_chauhan', 'name': 'Daksh Chauhan'},
+  76: {'filename': 'dhruv_bharti', 'name': 'Dhruv Bharti'},
+  77: {'filename': 'rajveer_thaman', 'name': 'Rajveer Thaman'},
+  78: {'filename': 'dev_bansal', 'name': 'Dev Bansal'},
+  79: {'filename': 'shreya_chauhan', 'name': 'Shreya Chauhan'},
+  80: {'filename': 'kashish', 'name': 'Kashish'},
+  81: {'filename': 'arshnoor_kapoor', 'name': 'Arshnoor Kapoor'},
+  82: {'filename': 'diksha', 'name': 'Diksha'},
+  83: {'filename': 'anshi_sharma', 'name': 'Anshi Sharma'},
+  84: {'filename': 'parul_sharma', 'name': 'Parul Sharma'},
+  85: {'filename': 'rishika_kaura', 'name': 'Rishika Kaura'},
+  86: {'filename': 'akansha', 'name': 'Akansha'},
+  87: {'filename': 'ayushi_vishwakarma', 'name': 'Ayushi Vishwakarma'},
+  88: {'filename': 'saanvi_bhanot', 'name': 'Saanvi Bhanot'},
+  89: {'filename': 'vaibhav_rohilla', 'name': 'Vaibhav Rohilla'},
+  90: {'filename': 'charvi', 'name': 'Charvi'},
+  91: {'filename': 'yashasvi_puri', 'name': 'Yashasvi Puri'},
+  92: {'filename': 'samayrra', 'name': 'Samayrra'},
+  93: {'filename': 'zafferine_rajora', 'name': 'Zafferine Rajora'},
+  94: {'filename': 'dameisha_sharma', 'name': 'Dameisha Sharma'},
+  95: {'filename': 'arna_tyagi', 'name': 'Arna Tyagi'},
+  96: {'filename': 'vridhi_rohal', 'name': 'Vridhi Rohal'},
+  97: {'filename': 'parineeti', 'name': 'Parineeti'},
+  98: {'filename': 'ashima', 'name': 'Ashima'},
+  99: {'filename': 'anika_gupta', 'name': 'Anika Gupta'},
+  100: {'filename': 'medhavi_singh', 'name': 'Medhavi Singh'},
+  101: {'filename': 'ritika', 'name': 'Ritika'},
+  102: {'filename': 'kanika_singh', 'name': 'Kanika Singh'},
+  103: {'filename': 'arpit_kashyap', 'name': 'Arpit Kashyap'},
+  104: {'filename': 'simran', 'name': 'Simran'},
+  105: {'filename': 'anshika_rawat', 'name': 'Anshika Rawat'},
+  106: {'filename': 'sejal_sharma', 'name': 'Sejal Sharma'},
+  107: {'filename': 'pari', 'name': 'Pari'},
+  108: {'filename': 'sakshi_kashyap', 'name': 'Sakshi Kashyap'},
+  109: {'filename': 'tejasvi_saini', 'name': 'Tejasvi Saini'},
+  110: {'filename': 'arushi_negi', 'name': 'Arushi Negi'},
+  111: {'filename': 'avishka_gupta', 'name': 'Avishka Gupta'},
+  112: {'filename': 'ananya', 'name': 'Ananya'},
+  113: {'filename': 'nadhya', 'name': 'Nadhya'},
+  114: {'filename': 'falak_sharma', 'name': 'Falak Sharma'},
+  115: {'filename': 'nishika_gatore', 'name': 'Nishika Gatore'},
+  116: {'filename': 'nandika_bali', 'name': 'Nandika Bali'},
+  117: {'filename': 'riya_sharma', 'name': 'Riya Sharma'},
+  118: {'filename': 'akshara_gupta', 'name': 'Akshara Gupta'},
+  119: {'filename': 'samaira_chawla', 'name': 'Samaira Chawla'},
+  120: {'filename': 'ayanna_chawla', 'name': 'Ayanna Chawla'},
+  121: {'filename': 'tanisha_sharma', 'name': 'Tanisha Sharma'},
+  122: {'filename': 'devansh_gupta', 'name': 'Devansh Gupta'},
+  123: {'filename': 'parneet_kaur', 'name': 'Parneet Kaur'},
+  124: {'filename': 'parth_singla', 'name': 'Parth Singla'},
+  125: {'filename': 'avni', 'name': 'Avni'},
+  126: {'filename': 'kinjal_jindal', 'name': 'Kinjal Jindal'},
+  127: {'filename': 'pari_yadav', 'name': 'Pari Yadav'},
+  128: {'filename': 'reyansh_mishra', 'name': 'Reyansh Mishra'},
+  129: {'filename': 'pulkit_singh', 'name': 'Pulkit Singh'},
+  130: {'filename': 'anshika_sood', 'name': 'Anshika Sood'},
+  131: {'filename': 'drishti', 'name': 'Drishti'},
+  132: {'filename': 'veohm_sharma', 'name': 'Veohm Sharma'},
+  133: {'filename': 'adhishri_dhyani', 'name': 'Adhishri Dhyani'},
+  134: {'filename': 'kabir_kataria', 'name': 'Kabir Kataria'},
+  135: {'filename': 'deepanshu', 'name': 'Deepanshu'},
+  136: {'filename': 'gyan_manjari_pathak', 'name': 'Gyan manjari pathak'},
+  137: {'filename': 'vedika_sharma', 'name': 'Vedika Sharma'},
+  138: {'filename': 'viren_malik', 'name': 'Viren Malik'},
+  139: {'filename': 'gauri_sharma', 'name': 'Gauri Sharma'},
+  140: {'filename': 'ananya_sharma', 'name': 'Ananya Sharma'},
+  141: {'filename': 'asmi_dhingra', 'name': 'Asmi Dhingra'},
+  142: {'filename': 'arnav_kaushik', 'name': 'Arnav Kaushik'},
+  143: {'filename': 'naisha_singla', 'name': 'Naisha Singla'},
+  144: {'filename': 'raghav_verma', 'name': 'Raghav Verma'},
+  145: {'filename': 'sehajpreet', 'name': 'Sehajpreet'},
+  146: {'filename': 'dakshay', 'name': 'Dakshay'},
+  147: {'filename': 'yakshit_sharma', 'name': 'Yakshit Sharma'},
+  148: {'filename': 'prisha_chawla', 'name': 'Prisha Chawla'},
+  149: {'filename': 'tanisha_chauhan', 'name': 'Tanisha Chauhan'},
+  150: {'filename': 'yashita_sharma', 'name': 'Yashita Sharma'},
+  151: {'filename': 'suhani', 'name': 'Suhani'},
+  152: {'filename': 'arshpreet_kaur', 'name': 'Arshpreet Kaur'},
+  153: {'filename': 'dhanesh', 'name': 'Dhanesh'},
+  154: {'filename': 'sameer_arora', 'name': 'Sameer Arora'},
+  155: {'filename': 'neelakshi', 'name': 'Neelakshi'},
+  156: {'filename': 'parth_singla_2', 'name': 'Parth Singla'},
+  157: {'filename': 'meetav_raheja', 'name': 'Meetav Raheja'},
+  158: {'filename': 'rishika_singla', 'name': 'Rishika Singla'},
+  159: {'filename': 'siddharth_jha', 'name': 'Siddharth Jha'},
+  160: {'filename': 'anshika_kaushal', 'name': 'Anshika Kaushal'},
+  161: {'filename': 'chahat_garg', 'name': 'Chahat Garg'},
+  162: {'filename': 'devansh_dhiman', 'name': 'Devansh Dhiman'},
+  163: {'filename': 'agamjot_kaur', 'name': 'Agamjot Kaur'},
+  164: {'filename': 'eva_tyagi', 'name': 'Eva Tyagi'},
+  165: {'filename': 'keshavi', 'name': 'Keshavi'},
+  166: {'filename': 'anaanya_narang', 'name': 'Anaanya Narang'},
+  167: {'filename': 'priyank_jain', 'name': 'Priyank Jain'},
+  168: {'filename': 'lakshyaraj_singh', 'name': 'Lakshyaraj Singh'},
+  169: {'filename': 'prisha_ranot', 'name': 'Prisha Ranot'},
+  170: {'filename': 'ridhima', 'name': 'Ridhima'},
+  171: {'filename': 'rishav_gupta', 'name': 'Rishav Gupta'},
+  172: {'filename': 'anshi', 'name': 'Anshi'},
+  173: {'filename': 'anhad_chugh', 'name': 'Anhad Chugh'},
+  174: {'filename': 'rhymthm_thapliyal', 'name': 'Rhymthm Thapliyal'},
+  175: {'filename': 'falak_saini', 'name': 'Falak Saini'},
+  176: {'filename': 'sana_mishra', 'name': 'Sana Mishra'},
+  177: {'filename': 'shreya_chaudhary', 'name': 'Shreya Chaudhary'},
+  178: {'filename': 'tanmayi_sardana', 'name': 'Tanmayi Sardana'},
+  179: {'filename': 'devishi_sharma', 'name': 'Devishi Sharma'},
+  180: {'filename': 'urvee_sharma', 'name': 'Urvee Sharma'},
+  181: {'filename': 'nidhani_dhiman', 'name': 'Nidhani Dhiman'},
+  182: {'filename': 'vaishnavi_arora', 'name': 'Vaishnavi Arora'},
+  183: {'filename': 'samridhi_shandilaya', 'name': 'Samridhi Shandilaya'},
+  184: {'filename': 'ahana_patel', 'name': 'Ahana Patel'},
+  185: {'filename': 'aarna_uppal', 'name': 'Aarna Uppal'},
+  186: {'filename': 'chahat_sikka', 'name': 'Chahat Sikka'},
+  187: {'filename': 'anahita_gupta', 'name': 'Anahita Gupta'},
+  188: {'filename': 'yashita', 'name': 'Yashita'},
+  189: {'filename': 'samar_saini', 'name': 'Samar Saini'},
+  190: {'filename': 'jahnvi_dhiman', 'name': 'Jahnvi Dhiman'},
+  191: {'filename': 'sanvi_sood', 'name': 'Sanvi Sood'},
+  192: {'filename': 'manveer_singh', 'name': 'Manveer Singh'},
+  193: {'filename': 'parkhi_suri', 'name': 'Parkhi Suri'},
+  194: {'filename': 'komal_singla', 'name': 'Komal Singla'},
+  195: {'filename': 'ayushi_mittal', 'name': 'Ayushi Mittal'},
+  196: {'filename': 'sajal_verma', 'name': 'Sajal Verma'},
+  197: {'filename': 'karthik_gurahiya', 'name': 'Karthik Gurahiya'},
+  198: {'filename': 'bhavya_panchal', 'name': 'Bhavya Panchal'},
+  199: {'filename': 'ridham_singh', 'name': 'Ridham Singh'},
+  200: {'filename': 'yashvi', 'name': 'Yashvi'},
+  201: {'filename': 'mishita_sharma', 'name': 'Mishita Sharma'},
+  202: {'filename': 'abhinav_kumar', 'name': 'Abhinav Kumar'},
+  203: {'filename': 'ajitesh', 'name': 'Ajitesh'},
+  204: {'filename': 'kenisha_sodhi', 'name': 'Kenisha Sodhi'},
+  205: {'filename': 'parth_singla_3', 'name': 'Parth Singla'},
+  206: {'filename': 'priyansh', 'name': 'Priyansh'},
+  207: {'filename': 'shivesh_singh_2', 'name': 'Shivesh Singh'},
+  208: {'filename': 'mishika_singh', 'name': 'Mishika Singh'},
+  209: {'filename': 'jashan_2', 'name': 'Jashan'},
+  210: {'filename': 'gunjan', 'name': 'Gunjan'},
+  211: {'filename': 'shwetabh_sinha', 'name': 'Shwetabh Sinha'},
+  212: {'filename': 'harshit_aggarwal', 'name': 'Harshit Aggarwal'},
+  213: {'filename': 'pihu_srivastava', 'name': 'Pihu Srivastava'},
+  214: {'filename': 'jivika', 'name': 'Jivika'},
+  215: {'filename': 'divisha_mittal', 'name': 'Divisha Mittal'},
+  216: {'filename': 'anvi_bhardwaj', 'name': 'Anvi Bhardwaj'},
+  217: {'filename': 'jashan_bankura', 'name': 'Jashan Bankura'},
+  218: {'filename': 'japleen', 'name': 'Japleen'},
+  219: {'filename': 'nitika_chandel', 'name': 'Nitika Chandel'},
+  220: {'filename': 'naira_chandel', 'name': 'Naira Chandel'},
+  221: {'filename': 'digvi_chopra', 'name': 'Digvi Chopra'},
+  222: {'filename': 'abeer_singh', 'name': 'Abeer Singh'},
+  223: {'filename': 'pihu_bhalla', 'name': 'Pihu Bhalla'},
+  224: {'filename': 'sumnit_kaushik', 'name': 'Sumnit Kaushik'},
+  225: {'filename': 'mankirat', 'name': 'Mankirat'},
+  226: {'filename': 'manasvee_jha', 'name': 'Manasvee Jha'},
+  227: {'filename': 'arav_rana', 'name': 'Arav Rana'},
+  228: {'filename': 'akshat_gupta', 'name': 'Akshat Gupta'},
+  229: {'filename': 'garv_dahiya', 'name': 'Garv Dahiya'},
+  230: {'filename': 'devvardhan_charora', 'name': 'Devvardhan Charora'},
+  231: {'filename': 'arpit', 'name': 'Arpit'},
+  232: {'filename': 'oraina_arya', 'name': 'Oraina Arya'},
+  233: {'filename': 'aditi_uniyal', 'name': 'Aditi Uniyal'},
+  234: {'filename': 'vihan_pandey', 'name': 'Vihan Pandey'},
+  235: {'filename': 'tanvee_mishra', 'name': 'Tanvee Mishra'},
+  236: {'filename': 'aradhya_pal', 'name': 'Aradhya Pal'},
+  237: {'filename': 'kevin_rana', 'name': 'Kevin Rana'},
+  238: {'filename': 'ananya_bhobu', 'name': 'Ananya Bhobu'},
+  239: {'filename': 'shubhteshwar_singh', 'name': 'Shubhteshwar Singh'},
+  240: {'filename': 'ritvik_chaudhary', 'name': 'Ritvik Chaudhary'},
+  241: {'filename': 'jaitesh_singh_gill', 'name': 'Jaitesh Singh Gill'},
+  242: {'filename': 'rupika_kirat', 'name': 'Rupika Kirat'},
+  243: {'filename': 'shaurya_thakur', 'name': 'Shaurya Thakur'},
+  244: {'filename': 'banveer', 'name': 'Banveer'},
+};
+    const nameInput = document.getElementById("nameSearch");
+    const suggestions = document.getElementById("suggestions");
+    const imageContainer = document.getElementById("imageContainer");
+
+    nameInput.addEventListener("input", function () {
+      const query = this.value.toLowerCase();
+      suggestions.innerHTML = "";
+      suggestions.style.display = "none";
+
+      if (!query) return;
+
+      const matches = Object.entries(imageMap).filter(([id, entry]) =>
+        entry.name.toLowerCase().includes(query)
+      );
+
+      if (matches.length > 0) {
+        suggestions.style.display = "block";
+        matches.forEach(([id, entry]) => {
+          const div = document.createElement("div");
+          div.textContent = entry.name;
+          div.onclick = () => selectStudent(id);
+          suggestions.appendChild(div);
+        });
+      }
+    });
+
+    function selectStudent(id) {
+  const entry = imageMap[id];
+  nameInput.value = entry.name;
+  suggestions.innerHTML = "";
+  suggestions.style.display = "none";
+
+  const imgUrl = `https://qrlogger.github.io/student-cards/${entry.filename}.png`;
+  const pdfUrl = `https://qrlogger.github.io/student-id-cards/${entry.filename}.pdf`;
+
+  const img = new Image();
+  img.crossOrigin = "Anonymous"; // important for canvas access
+  img.src = imgUrl;
+
+  img.onload = function () {
+    const canvas = document.getElementById("qrCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = img.width;
+    canvas.height = img.height;
+
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    const qrCode = jsQR(imageData.data, canvas.width, canvas.height);
+    let qrText = qrCode ? qrCode.data : "⚠️ Unable to decode QR.";
+
+    let formatted = "";
+
+    if (qrCode) {
+      try {
+        const data = JSON.parse(qrCode.data);
+
+        formatted = `
+          <div style="background:#001a1a; padding:15px; border-radius:10px; max-width:300px; margin:0 auto; text-align:left;">
+            <p><strong>Name:</strong> ${data.name.toUpperCase()}</p>
+            <p><strong>Committee:</strong> ${data.committee}</p>
+            <p><strong>Payment Status:</strong> ${data.class.toUpperCase()}</p>
+            <p><strong>Phone Number:</strong> ${data.school}</p>
+          </div>
+        `;
+      } catch (e) {
+        formatted = `<p style="color: red;">⚠️ Invalid QR code content</p>`;
+      }
+    } else {
+      formatted = `<p style="color: red;">⚠️ Could not detect QR code</p>`;
+    }
+
+    imageContainer.innerHTML = `
+  <h3>${entry.name}</h3>
+  ${formatted}
+  <img src="${imgUrl}" alt="QR Code for ${entry.name}">
+  <br>
+  <a id="pdfDownload" href="${pdfUrl}" download style="display: inline-block; margin-top: 10px; background-color: #0f3d3e; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px;">Download ID Card PDF</a>
+`;
+
+
+
+  
+  };
+
+  img.onerror = () => {
+    imageContainer.innerHTML = `<p style="color:red;">❌ Failed to load QR image.</p>`;
+  };
+}
+
+
+    // Hide suggestions when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!document.querySelector(".container").contains(e.target)) {
+        suggestions.style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>
