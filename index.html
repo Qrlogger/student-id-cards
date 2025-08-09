@@ -10,7 +10,13 @@
       text-align: center;
       padding: 40px;
     }
-
+    
+    .content {
+      padding-top: 90px; /* leave space for top banner */
+      padding-bottom: 90px; /* leave space for bottom banner */
+      max-width: 900px;
+      margin: 0 auto;
+    }
     input {
       padding: 10px;
       font-size: 16px;
@@ -535,6 +541,46 @@
         suggestions.style.display = "none";
       }
     });
+     // utility to escape HTML
+      function escapeHtml(unsafe) {
+        return String(unsafe)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      // Hide suggestions when clicking outside
+      document.addEventListener("click", (e) => {
+        if (!document.querySelector(".container").contains(e.target)) {
+          suggestions.style.display = "none";
+        }
+      });
+
+      // Dismiss banner function (persists for current session)
+      function dismissBanner(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.style.display = 'none';
+        // optionally remember dismissal in sessionStorage:
+        sessionStorage.setItem(id + '_dismissed', '1');
+      }
+
+      // auto-hide banners if dismissed earlier this session
+      window.addEventListener('DOMContentLoaded', () => {
+        ['topDisclaimer','bottomDisclaimer'].forEach(id => {
+          if (sessionStorage.getItem(id + '_dismissed')) {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+          }
+        });
+      });
   </script>
+   <!-- Bottom disclaimer banner -->
+  <div id="bottomDisclaimer" class="disclaimer-banner disclaimer-bottom" role="region" aria-label="Disclaimer">
+    <span>⚠️ <strong>Disclaimer:</strong> This application is independently developed. No institution or third party holds ownership rights; all intellectual property and distribution rights remain with the developer.</span>
+    <button class="dismiss" aria-label="Dismiss bottom disclaimer" onclick="dismissBanner('bottomDisclaimer')">✕</button>
+  </div>
 </body>
 </html>
