@@ -83,6 +83,33 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.4);
       font-size: 14px;
     }
+.image-container {
+    position: relative;
+    display: inline-block;
+}
+
+.image-container img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.watermark {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 0.8em;
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+}
+
+.watermark:hover {
+    background: rgba(0, 0, 0, 0.7);
+}
 
     .disclaimer-banner small {
       font-weight: 400;
@@ -130,7 +157,14 @@
     <div id="suggestions"></div>
   </div>
 
-  <div id="imageContainer"></div>
+  <div class="image-container">
+    <img id="delegateImage" alt="Delegate Card">
+    <a href="https://play.google.com/store/apps/dev?id=9086982615570265453" 
+       class="watermark" target="_blank">
+        Utilities by Kinshuk
+    </a>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <canvas id="qrCanvas" style="display:none;"></canvas>
 
