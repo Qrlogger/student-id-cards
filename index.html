@@ -35,9 +35,6 @@
       max-width: 300px;
     }
 .watermark {
-    position: fixed;
-    bottom: 8px;
-    right: 8px;
     background: rgba(0, 0, 0, 0.5);
     color: white;
     font-size: 0.8em;
@@ -45,11 +42,13 @@
     border-radius: 4px;
     text-decoration: none;
     font-family: Arial, sans-serif;
-    z-index: 9999; /* make sure it's above everything else */
+    display: inline-block;
+    margin-top: 8px;
 }
 .watermark:hover {
     background: rgba(0, 0, 0, 0.7);
 }
+
 
     #imageContainer {
       margin-top: 20px;
