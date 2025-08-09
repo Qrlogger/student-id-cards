@@ -83,33 +83,6 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.4);
       font-size: 14px;
     }
-.image-container {
-    position: relative;
-    display: inline-block;
-}
-
-.image-container img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-}
-
-.watermark {
-    position: absolute;
-    bottom: 8px;
-    right: 8px;
-    background: rgba(0, 0, 0, 0.5);
-    color: white;
-    font-size: 0.8em;
-    padding: 4px 8px;
-    border-radius: 4px;
-    text-decoration: none;
-    font-family: Arial, sans-serif;
-}
-
-.watermark:hover {
-    background: rgba(0, 0, 0, 0.7);
-}
 
     .disclaimer-banner small {
       font-weight: 400;
@@ -150,10 +123,6 @@
   </div>
   <img src="https://qrlogger.github.io/student-id-cards/satlujmun_logo.png" alt="Satluj MUN Logo" style="max-width: 150px; margin-bottom: 20px;">
   <h3>Satluj Mun</h3>
-  <a href="https://play.google.com/store/apps/dev?id=9086982615570265453" 
-       class="watermark" target="_blank">
-        Utilities by Kinshuk
-    </a>
   <h2>Search Delegate Name</h2>
 
   <div class="container">
@@ -161,8 +130,7 @@
     <div id="suggestions"></div>
   </div>
 
-  <div class="imageContainer"></div>
-
+  <div id="imageContainer"></div>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <canvas id="qrCanvas" style="display:none;"></canvas>
 
@@ -510,8 +478,8 @@
   suggestions.innerHTML = "";
   suggestions.style.display = "none";
 
-  const imgUrl = https://qrlogger.github.io/student-cards/${entry.filename}.png;
-  const pdfUrl = https://qrlogger.github.io/student-id-cards/${entry.filename}.pdf;
+  const imgUrl = `https://qrlogger.github.io/student-cards/${entry.filename}.png`;
+  const pdfUrl = `https://qrlogger.github.io/student-id-cards/${entry.filename}.pdf`;
 
   const img = new Image();
   img.crossOrigin = "Anonymous"; // important for canvas access
@@ -535,27 +503,27 @@
       try {
         const data = JSON.parse(qrCode.data);
 
-        formatted = 
+        formatted = `
           <div style="background:#241d46; padding:15px; border-radius:10px; max-width:300px; margin:0 auto; text-align:left;">
             <p><strong>Name:</strong> ${data.name.toUpperCase()}</p>
             <p><strong>Committee:</strong> ${data.committee}</p>
             <p><strong>Payment Status:</strong> ${data.class.toUpperCase()}</p>
           </div>
-        ;
+        `;
       } catch (e) {
-        formatted = <p style="color: red;">⚠️ Invalid QR code content</p>;
+        formatted = `<p style="color: red;">⚠️ Invalid QR code content</p>`;
       }
     } else {
-      formatted = <p style="color: red;">⚠️ Could not detect QR code</p>;
+      formatted = `<p style="color: red;">⚠️ Could not detect QR code</p>`;
     }
 
-    imageContainer.innerHTML = 
+    imageContainer.innerHTML = `
   <h3>${entry.name}</h3>
   ${formatted}
   <img src="${imgUrl}" alt="QR Code for ${entry.name}">
   <br>
   <a id="pdfDownload" href="${pdfUrl}" download style="display: inline-block; margin-top: 10px; background-color: #241d46; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px;">Download ID Card PDF</a>
-;
+`;
 
 
 
@@ -563,7 +531,7 @@
   };
 
   img.onerror = () => {
-    imageContainer.innerHTML = <p style="color:red;">❌ Failed to load QR image.</p>;
+    imageContainer.innerHTML = `<p style="color:red;">❌ Failed to load QR image.</p>`;
   };
 }
 
